@@ -32,3 +32,18 @@ export const posts = {
   description: "Get All Posts",
   resolve: () => Post.find()
 }
+
+export const post = {
+  type: PostType,
+  description: "Get a post",
+  args: {
+    id: { type: GraphQLID }
+  },
+  resolve: (_, args) => {
+    const post = Post.findById(args.id)
+    if (!post.exists) {
+      throw new Error("Post %s not found", args.id)
+    }
+    return post;
+  }
+}

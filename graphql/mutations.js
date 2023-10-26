@@ -63,3 +63,44 @@ export const createPost = {
     return newPost
   }
 }
+
+export const updatePost = {
+  type: PostType,
+  description: "Update a Post",
+  args: {
+    id: { type: GraphQLID },
+    title: { type: GraphQLString },
+    body: { type: GraphQLString },
+  },
+  resolve: async (_, { id, title, body }, { verifiedUser }) => {
+    if (!verifiedUser) throw new Error("Unauthorized")
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: id, authorId: verifiedUser._id },//compara la misma persona que creo
+      {
+        title,
+        body
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+    return updatedPost
+  }
+}
+
+export const deletePost = {
+  type: PostType,
+  description: "Delete a Post",
+  args: {
+    id: { type: GraphQLID },
+  },
+  resolve: async (_, { id }, { verifiedUser }) => {
+    if (!verifiedUser) throw new Error("Unauthorized")
+    const deletedPost = await Post.findOneAndDelete(
+      { _id: id, authorId: verifiedUser._id }
+    )
+    if(!deletedPost) throw new Error("Post not Found")
+    return deletedPost
+  }
+}
